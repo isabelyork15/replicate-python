@@ -1,0 +1,34 @@
+import cv2
+import numpy as np
+import replicate
+
+# Função para melhorar a qualidade da imagem
+def improve_image_quality(image_path):
+    image = cv2.imread(image_path)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    improved_image = cv2.equalizeHist(gray_image)
+    return improved_image
+
+# Defina o token da API Replicate em seu ambiente
+# export REPLICATE_API_TOKEN=<your token>
+
+# Carregar a imagem
+image_path = 'path_to_your_image.jpg'
+
+# Melhorar a qualidade da imagem e ampliar a escala
+async def enhance_image(image_path):
+    improved_image = improve_image_quality(image_path)
+    scale_factor = 2
+    scaled_image = cv2.resize(improved_image, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_LINEAR)
+    output = await replicate.async_run(
+        "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478",
+        input={"image": scaled_image}
+    )
+    return output
+
+# Executar a melhoria da qualidade da imagem e ampliação da escala
+output = await enhance_image(image_path)
+
+# Mostrar a imagem resultante
+for url in output:
+    print(url)
